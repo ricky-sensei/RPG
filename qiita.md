@@ -1,111 +1,209 @@
-# 寒くなってきたぜ！　　
-風邪ひかないようにね！先生は天才なので、いつ風邪をひくかいつもひやひやしています。それに加えてイケメンなので、気が気じゃありません。　　
+この記事は、岩手県八幡平市のプログラミング教室「アクセルキャンプ」の公開教材です。
+[アクセルキャンプ(フリースペースプラウド)のリンク](https://freespaceproud.com)
+教材の作成依頼等も承っております。ご意見等は、リンク先の問い合わせ欄からお願いします。
+教材の転用・利用等は自由です  
+***
 
-# PygameでRPG風な画面を作ってみよう。  
-今の君たちに言っても全然伝わらない可能性があるけど、先生の時代はファミコンからスーパーファミコンに切り替わったり、初代プレイステーションがでて、「すげー！ＣＧやべえ！！ゲームすげー！！！」てなった時代です。中学生になってＦＦ１０が出たときなんかもう、グラフィックがきれいすぎてぶったまげたもんです。今のゲームと比べると全然ですが、なんていうか、そういう感動が今のゲームにはない気がします。　　
-
-今日みんなに作ってもらいたいのは、こういう感じの、いわゆる「ドット絵」風な、１９８０年代くらいのゲーム「風な」画面です。
-　　
-これに、今後動きを付けたり、戦闘の描写を付けたりしていきます。　　
-![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/2732489/fc37df75-c260-cb78-b026-f4ebf32c263d.png)
-
-「なにこれ、だっさ」とか言ったそこの君！廊下に立ってなさい！！ドット絵のすばらしさについて３時間お説教の刑です！　　
-冗談ですが。やっていくうちに「ドット絵のゲームでさえこんなだから、実際のゲーム作ってる人ってすごいんだなぁ」みたいな感覚はもってほしいです.   
+# 寒い！起きれない！ﾈﾑｲ(´･ωゞ)
+布団から出られません。先生、最近朝4時起きしてるんですが、外は氷点下です。起きねぇっすマジムリっす。 アルバイトを募集します。朝4時に先生の家まで来て先生を起こすだけの簡単なお仕事です。応募はフリースペースプラウドまで。  
   
-# ①まずは呪文から
-pygame初期状態の呪いの呪文を唱えましょ
+# 前回までのコード  
 ```python
 import pygame
 from pygame.locals import *
 import sys
 
-def main():
-    pygame.init()                                   # Pygameの初期化
-    screen = pygame.display.set_mode((400, 300))    # 400 x 300の大きさの画面を作る
-    pygame.display.set_caption("クソゲー")              # 画面上部に表示するタイトルを設定
+# 効果音を再生する関数
+def sound_effect(sound):
+    pygame.mixer.music.load(sound)
+    pygame.mixer.music.play(1)
+
+
+    /*中略*/
+    # 効果音
+    select_sound = "sound/select_sound.mp3"
 
     while (1):
-        screen.fill((0,0,0))        # 画面を黒色に塗りつぶし
-        pygame.display.update()     # 画面を更新
+        /*中略*/
         # イベント処理
         for event in pygame.event.get():
             if event.type == QUIT:  # 閉じるボタンが押されたら終了
-                pygame.quit()       # Pygameの終了(画面閉じられる)
+                pygame.quit()  # Pygameの終了(画面閉じられる)
                 sys.exit()
+
+            elif event.type == KEYDOWN:
+                if event.key == K_UP:
+                    if action_number == 0:
+                        action_number = 2
+                    else:
+                        action_number -= 1
+                     
+                    # 再生
+                    sound_effect(select_sound)
+                elif event.key == K_DOWN:
+                    if action_number == 2:
+                        action_number = 0
+                    else:
+                        action_number += 1
+                    # 再生
+                    sound_effect(select_sound)
 
 
 if __name__ == "__main__":
     main()
+
 ```
-これ、いちいちうつの超めんどいですよね？  
-こういうとき、いつも授業で使ってるpycharmでは、ライブテンプレートという機能が使えます。
-詳しくは[ここ](https://y0m0r.hateblo.jp/entry/20130822/1377180840)とかを見るといいと思いますが、pycharmと入力しただけで、この初期状態のコードがまるっと出てくるわけです。  
-  
-ではまず、スライムくんの画像を表示しましょう。  
-ここで、pythonプロジェクトのディレクトリについて、話しておく必要があります。
-  
-pycharmの左側を見てみましょう。こんなのが表示されています。
-![img_1.png](img_1.png)
 
-ここには、作成したプロジェクトの中にどんなパーツが入っているかが書いてあります。 
-ゲームを作るには、ソースコードだけではできませんよね。スライムや勇者の画像、音楽などのパーツをおいておき、それらを使いたいときに使えるように、整理しておいておくのがいいですね。例えば、画像のファイルが音楽のファイルと一緒になっていたら、それをソースコードから使いたいときに、ちょっと面倒ですよね。  
-  
-ソースコードは、ゲームを作るのに必要なパーツの一つでしかありません。一般的に「フォルダ」と言われるものが、プログラミング的には「ディレクトリ」と呼ばれたりします。  
-では、プロジェクトディレクトリ（一番大きいでディレクトリ）の下にimgディレクトリを作って、その中にスライムの画像を入れてみましょう。画像のファイル名は「slyme.png」という名前にしましょう。すると、こんな感じの後世になります。
-![img_3.png](img_3.png)
+前回はsound_effect関数を作成し、選択肢を変えるたびに音を鳴らしていましたね。
 
-ここで、main.pyの気持ちになって、slyme.pngを探してみてください。
-main.pyさんの住んでいる部屋には、imgという小部屋があります。そのなかに、slyme.pngさんがいます。すると、  
-「imgの部屋のなかのslyme.pngさん」という風に指定すると、会いたい人（ほしいデータ）に出会えそうですね。そのことを意識したうえで、次のコードを、メインループの前に追加してみましょう。
+# サーセン(๑´ڤ`๑)ﾃﾍ♡
+前回の記事で、間違いがありました。「え？うまく動いてんじゃん」って思うかもしれませんが、結構大きな間違い💦
 
+前回は音楽ファイルを「BGMとして」再生していました。本来は「効果音として」再生したいです。sound_se関数を、以下のように修正してください
 ```python
-import pygame
-from pygame.locals import *
-import sys
+"""修正前
+def sound_effect(sound):
+    pygame.mixer.music.load(sound)
+    pygame.mixer.music.play(1)
+    time.sleep(0.2)
+    pygame.mixer.music.stop()
+"""
 
-def main():
-    pygame.init()                                   # Pygameの初期化
-    screen = pygame.display.set_mode((800,600))    # 400 x 300の大きさの画面を作る
-    pygame.display.set_caption("いけめんがつくったげえむ")              # 画面上部に表示するタイトルを設定
+# 修正後
+def sound_effect(sound):
+    se = pygame.mixer.Sound(sound)
+    se.play()
+
+```
+
+time.sleep()で、わざわざプログラムを0.2秒止めて音楽を再生していたんですね。選択音のような短いファイルならなんとかごまかせそうですが、少し長めのファイルになると、問題が出てきます。pygame.mixer.Sound()をつかうことで、効果音として、プログラムを止めることなく再生できます。
+
+# 選択肢によって効果音を変えよう
+「たたかう」「じゅもん」「にげる」選択肢を選んでいる状態でエンターキーを押すと、それに合った効果音が再生される、というのを実装していきます。  
+  
+まず、音楽ファイルを用意しましょう。今回は[効果音ラボ](https://soundeffect-lab.info/)のサイトから音源を持ってきます。  
+- たたかう：https://soundeffect-lab.info/sound/battle/mp3/sword-slash1.mp3
+- じゅもん：https://soundeffect-lab.info/sound/battle/mp3/magic-statusup2.mp3
+- にげる：https://soundeffect-lab.info/sound/anime/mp3/flee1.mp3  
+
+ダウンロードできたら、それぞれのファイルをsoundフォルダに移します。
+
+![](.qiita_images/a197503e.png)
+
+それでは、コードでそれぞれの音がなるようにしていきましょう。  
+  
+「エンターキーを押すと」音が鳴る、というようにしたいので、event.type == KEYDOWNのあたりをいじっていけばよさそうですね。前回も「↓」を押したときに音が鳴る、としたので、それをマネしてみましょう。
+  
+```python
+elif event.type == KEYDOWN:
+    if event.key == K_DOWN:
+        if action_number == 2:
+            action_number = 0
+        else:
+            action_number += 1
+        sound_effect("sound/select_se.mp3")
+    elif event.key == K_RETUREN:
+        sound_effect("sound/battle.mp3")
+
+```  
+音は再生されましたか？うまくいってないときは、エラー文をよく見た上で、ファイルのパス（sound/spell.mp3）のスペルなどを確認してみてください。  
+現在はどこでもエンターキーを押すと攻撃用bgmが流れてきてしまうので、これを条件分岐を使ってじゅもん、にげるでも音が出るように改良しましょう。条件分岐わすれちゃったぜ！という人は、[ここ](https://qiita.com/ricky-sensei/items/6dfb02324b62c313498a)で再確認してみてください
+  
+```python
+elif event.type == KEYDOWN:
+    if event.key == K_DOWN:
+        if action_number == 2:
+            action_number = 0
+            
+        else:
+            action_number += 1
+        sound_effect("sound/select_se.mp3")
+        
+    elif event.key == K_RETUREN:
+        
+        # たたかう
+        if action_number == 0:
+            sound_effect("sound/battle.mp3")
+            
+        # じゅもん
+        elif action_number == 1:
+            sound_effect("sound/spell.mp3")
+            
+        # にげる
+        elif action_number == 2:
+            sound_effect("sound/run.mp3")
     
-    #追加部分
-    slyme_image = pygame.image.load("image/slyme.png")
-    # 以下省略
-```
-slyme.pngという画像ファイルの情報を、slyme_imageという変数に入れます。loadって、ゲームで見たことないですかね？「now loading(ロード中)」とかってやつです。load=読み込み 的な意味です。これで画像をいつでも使える準備ができました。
+
+```  
+
+# HP機能の実装
+
+今の状態では、ただスライムに攻撃したら、攻撃の音がするだけ担っているので、実際にHPを減らすことができるようにしましょう。  
   
-ここの、"image/slyme.png"というところに注目です。ここの / は、「～ディレクトリのなかの～」というのを表しています。たとえば "A / B / C" となると、「AディレクトリのなかのBディレクトリの中のC」となります。
+以下のように要件定義をします。
 
-では、この画像を表示してみましょう。
-画像などのデータを表示するには。次のメソッドを使います。
-```python
-screen.blit(表示したい画像,(表示したい座標))
-```
-ここでちょっと気をつけなくちゃいけないのが、表示したい座標についてです。ここでは、画像の中心ではなく、左上をこの座標に合わせることになるので、狙った場所に画像を出すには、その画像の縦幅・横幅の半分だけずらして表示する必要があります。このsylme.pngはたて・よこともに４００のサイズになっていますので、どまんなかやや上に表示してRPGっぽく表示するには、こんな感じになります。
-```python
-screen.blit(slyme_image, (400-(400 / 2), 0))
-```
-これを、メインループ内に追加します。  
-※ちなみに、画像の縦横の長さを取得する方法もあるのですが、ややこしくなってしまうのでここでは省略します。
-![img_4.png](img_4.png)
+>①スライムの体力は530,000
+> ②攻撃の威力は10.000から30,000までのランダムな数字
+> ③HPがゼロになったら、「”リッキーを たおした！ けいけんちを １００ てにいれた”」と表示  
 
-では、画面下部に文字を表示するための枠線を描画しましょう。  
-長方形の枠線を描画するには、以下の関数を使います。
+### ①スライムの体力は530,000  
+〇リーザ様ですね。これは最初から決まっている値なので、メインループが始まる前に変数を作りましょう
 ```python
-pygame.draw.rect(screen,(255, 255, 255),Rect(20, 400, 760, 180), 10)
-```
-255が三つ並んでる時点で、「お！これ絶対RGBじゃん！白い枠線じゃん！」みたいになった人は、ちゃんと勉強してますね！恐ろしい子！
-
-<img src="img_5.png" width=30%>
-pygameのdraw.rectは、４つの引数を取ります。
-①どの画面に出力するか
-②枠線の色（RGB）
-③Rect型で四角の範囲を指定
-④枠線の太さ  
+hit_point == 530000
+```  
   
-③が一番イミフだと思います。コードに書かれている  
-> Rect(20, 400, 760, 180)
+### ②攻撃の威力は10.000から30,000までのランダムな数字  
+pythonでランダムな数字を得るためにはいくつかの手段があります。python自体にはランダム機能は含まれているのですが、デフォルトの状態ではその機能を使えるようになっていません。なので、pygame同様に,「random」をimportする必要があります。
+今回は小数ではなく整数のランダムな値にしたいので、randomモジュールのなかのrandint()関数を使います。引数として、ランダムの範囲（〇から×までのランダムな整数の場合、〇と×）の２つの整数を引数に取ります。
+
+
+```python
+import random
+"""
+中略
+"""
+attack = random.randint(10000, 30000)
+```
+attackですが、どこに書いたいいかわかりますか？キーボードのボタンが押されたとき → そのキーがエンターキーだったとき → 「たたかう」が選択されていた時（action_numberが0だったとき） に、攻撃をしたいわけですので、しかるべきところに書いていきましょう。 ついでに、Hit_Pointからattackを引き算しちゃいましょう。
+
+```python
+elif event.type == KEYDOWN:
+    if event.key == K_DOWN:
+        if action_number == 2:
+            action_number = 0
+        else:
+            action_number += 1
+        sound_effect("sound/select_se.mp3")
+
+    # エンターキーが押されたとき
+    elif event.key == K_RETURN:
+        # 「たたかう」のBGM
+        if action_number == 0:
+            sound_effect("sound/battle.mp3")
+            
+            #10000から30000までのランダムな整数 
+            attack = random.randint(10000, 30000)
+            hit_Point -= attack
+```
+
+### ③HPがゼロになったら、「”リッキーを たおした！ けいけんちを １００ てにいれた”」と表示  
+ここまで来れたらもう簡単。if文で残りHPを判定して、printするだけですね。
+```python
+if action_number == 0:
+    sound_effect("sound/battle.mp3")
+    attack = random.randint(10000, 30000)
+    hit_point -= attack
+    if hit_point <= 0:
+        print("りっきーを たおした！ けいけんちを １００００ てにいれた！")
+    else:
+        print(hit_point)
+```
   
-を見てみましょう。最初の２つの数字は、四角の左上のx座標、ｙ座標です。３つ目の７６０は、左上の頂点からの横の長さ、最後の１８０は縦の長さです。左上をの点をきめて、そこからどれくらいの長さをカバーすることを決めて、長方形の範囲を決めているんですね。
+コード全体を見てみましょう。  
+![](.qiita_images/f326588e.png)
+ 
+現在はログが出ているだけなので、次回はこれをしっかり画面に反映させていきましょう。
 
-
+***
+今回はここまで！来週の内容ですが、実は今までの内容の応用のみで実装可能です。  四角を表示して、ＨＰの表示をしますが、ポイントはどういうときに四角を表示して、どういうときに非表示にするかです。
+ぜひ、前の記事を確認しながら、挑戦してみてください！
