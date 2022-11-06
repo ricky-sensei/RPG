@@ -77,20 +77,20 @@ def main():
     time_start = time.time()
 
     while (1):
-        if message == "スライム:でなおしてきな！":
-            time.sleep(3)
-            sys.exit()
+
 
         time_end = time.time()
-        if time_end - time_start > 10.0:
+        if slyme_HP > 0 and time_end - time_start > 10.0:
             player_damage = random.randint(8000, 10000)
             player_HP -= player_damage
-            message = "リッキーの こうげき プレイヤーに " + dq_font(player_damage) + "のダメージ"
-
             sound_effect("sound/battle.mp3")
             if player_HP <= 0:
                 player_HP = 0
+                sound_effect("sound/gameover.mp3")
                 message = "スライム:でなおしてきな！"
+
+            else:
+                message = "リッキーの こうげき プレイヤーに " + dq_font(player_damage) + "のダメージ"
 
             time_start = time.time()
 
@@ -135,12 +135,17 @@ def main():
         screen.blit(spell_text, (45, 480))
         screen.blit(run_text, (45, 510))
 
+        pygame.display.update()  # 画面を更新
+
+        # HP0のときの終了処理
+        if message in ("スライム:でなおしてきな！", "リッキーをたおした！ プレイヤーのしょうり！！"):
+            time.sleep(10)
+            sys.exit()
+
         if run == True:
             slymeX -= 2
             if slymeX < -400:
                 pygame.quit()
-
-        pygame.display.update()  # 画面を更新
         # イベント処理
         for event in pygame.event.get():
             if event.type == QUIT:  # 閉じるボタンが押されたら終了
@@ -183,10 +188,12 @@ def main():
 
                     slyme_HP -= damage
                     damageY = 200
-                    message = "リッキーに " + dq_font(damage) + "の ダメージ"
                     if slyme_HP <= 0:
                         slyme_HP = 0
-
+                        message = "リッキーをたおした！ プレイヤーのしょうり！！"
+                        sound_effect("sound/victory.mp3")
+                    else:
+                        message = "リッキーに " + dq_font(damage) + "の ダメージ"
 
 if __name__ == "__main__":
     main()
