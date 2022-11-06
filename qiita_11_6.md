@@ -206,4 +206,87 @@ if __name__ == "__main__":
 ```
 改めて見てみると、200行くらいのコードになってますね！ここまでよく頑張りました！一生懸命書いたコードがちゃんと動くのを見るのは、気持ちいいですよね！また、うまくいかない原因がわかって解決するのは、また違ったうれしさがありますよね！  
 [前回のコード](https://qiita.com/ricky-sensei/items/59132104e884a6fb1979)と見比べてみましょう！いくつかの変更点があります。  
-まずは、新機能ではない、前回のコード動きを変更しないコードの変更(リファクタリング)から
+まずは、新機能ではない、前回のコード動きを変更しないコードの変更(リファクタリング)から。
+  
+### ①dq_font 関数
+リッキーがコードを書きながら気づいたのですが、dragonquestFC.ttfは半角の文字に対応していませんでした。対応してるフォントであればこれは必要ない関数ですが、今回は関数を作ることで対応しました。「ググルのめんどくさいからコード書いた」って言えばちょっとかっこいいかな？笑 
+```python
+def dq_font(number):
+    return str(number).translate(str.maketrans({chr(0x0021 + i): chr(0xFF01 + i) for i in range(94)}))
+```
+辞書型という、まだあんまり勉強してないpythonの文法を使っているので、気になる人は調べているのもいいかもしれません。いろいろ書いてますが、やってることは「半角文字を全角にする」です。
+  
+### ②HP表示  
+前回はprint文でログを出力下だけでしたが、今回はしっかりと画面上に表示するようにしました。
+前回はスライムのHPだけ表示してましたが、プレイヤー側にダメージを与える仕組みにしたので(後述)プレイヤー側のHPも表示しています。  
+  
+```python
+# HPテキスト表示の枠を表示
+pygame.draw.rect(screen, white, Rect(rectX_slymeHP, rectY_slymeHP, rectW_HP, rectH_HP), 10)
+pygame.draw.rect(screen, white, Rect(rectX_playerHP, rectY_playerHP, rectW_HP, rectH_HP), 10)
+
+# スライムのHP表示
+slymeHP_text = font.render("ＨＰ：" + dq_font(slyme_HP), True, white)
+slymeHP_rect = slymeHP_text.get_rect(center=(640, 70))
+screen.blit(slymeHP_text, slymeHP_rect)
+
+# プレイヤーのHP表示
+playerHP_text = font.render("ＨＰ：" + dq_font(player_HP), True, white)
+playerHP_rect = playerHP_text.get_rect(center=(690, 250))
+screen.blit(playerHP_text, playerHP_rect)
+```  
+まず同じ大きさの四角を2つ作り、その中にそれぞれのtextをblitする。  
+↑の文章で「なるほど！」とうなずける人は、だいぶpygameがわかってきた証拠です。ダメージが発生するたびに、ここに表示される数が減っていきます。  
+  
+### ③スライムによる反撃機能の作成  
+リッキー(スライム)だって黙ってやられるわけではありません。めんどくさがりのリッキーでも、たまには反撃します。具体的には10秒に一回。
+```python
+time_end = time.time()
+if slyme_HP > 0 and time_end - time_start > 10.0:
+    player_damage = random.randint(8000, 10000)
+    player_HP -= player_damage
+    sound_effect("sound/battle.mp3")
+    if player_HP <= 0:
+        player_HP = 0
+        sound_effect("sound/gameover.mp3")
+        message = "スライム:でなおしてきな！"
+    else:
+        message = "リッキーの こうげき プレイヤーに " + dq_font(player_damage) + "のダメージ"
+        
+    time_start = time.time()
+```
+time_start time_endという2つの変数で時間を管理します。time モジュールの使い方はいろいろあり、細かくは説明しませんが、time.time()を実行したときに、その時の時間を設定します。time_endーtime_startを引き算した結果=経過した時間が10秒以上だったとき、スライムは攻撃し、その後time_startをリセットして次の10秒に備えます。  
+また、そのときにプレイヤーのHPが0以下になったときに、ゲームオーバー用の音楽を流します。  
+  
+  
+### ④ゲームオーバー、勝利の演出追加
+```python
+if message in ("スライム:でなおしてきな！", "リッキーをたおした！ プレイヤーのしょうり！！"):
+    time.sleep(10)
+    sys.exit()
+```
+このif文だけで、終了したあとに操作しても、HP表示が変化したり、音がなったりしないように制御しています。  
+気をつけるべきポイント、と言うか、リッキーが気をつけずにミスってしまったことは、これをpygame.update()のあとに書くことです。こうしないと、終了はするけど、HP表示が変化しないで終わってしまうという、なんとも歯切れの悪い感じになってしまいます。  
+
+今回はぶっちゃけ細かい変更はそれ意外にも結構してるので、アクセルキャンプに参加せずにこの記事だけで勉強してる人(一部いるみたいです！ありがとう！)は、「？？」ってなるところも多いと思いますが、そこはご勘弁を。  
+
+
+# RPGっぽいなにかの制作、どうだった？
+最初に言った通り、今回はゲームを作ったと言うより、ゲームの1シーンをそれっぽく作ってみた感じになりますが、どうだったでしょうか。  
+普段勉強していることがこういう感じで生かされているんだな、という視点を持つと、またプログラミングの勉強に対する見方が変わってきませんか？
+
+# アレンジしまくろう！  
+せっかく作ったのにここで終わるのはもったいない！って思ってるそこのキミ！まずはアイディアだしからしていって、できそうなところから挑戦してみよう！
+  
+・オープニング画面などの挿入  
+・スライムの次の敵キャラの追加  
+・行動の選択肢の追加  
+などなど  
+  
+ではまた来週もPygameで面白いの作っていく予定なので、お楽しみに！
+
+
+
+
+
+  
